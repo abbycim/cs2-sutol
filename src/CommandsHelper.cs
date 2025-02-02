@@ -15,6 +15,7 @@ public partial class Main
         MaxSutReached,
         AlreadySut,
         SutBozDisabled,
+        SutNotEnabled,
         NotSut,
         NoSutPlayers
     }
@@ -41,8 +42,11 @@ public partial class Main
         if (sutList.Count >= Config.MaxSut)
             return SutCondition.MaxSutReached;
 
-        if (player.sutOl())
+        if (!player.sutOl())
             return SutCondition.AlreadySut;
+        
+        if (!SutAktif)
+            return SutCondition.SutNotEnabled;
 
         return SutCondition.Valid;
     }
@@ -73,6 +77,7 @@ public partial class Main
             SutCondition.AlreadySut => $"{ChatColors.Red}Zaten sütsünüz!!",
             SutCondition.SutBozDisabled => $"{ChatColors.Red}Süt bozma aktif değil!!",
             SutCondition.NotSut => $"{ChatColors.Red}Süt Değilsiniz!!",
+            SutCondition.SutNotEnabled => $"{ChatColors.Red}Süt olma aktif değil!!",
             SutCondition.NoSutPlayers => $"{ChatColors.Red}Herhangi bir süt bulunmamakta!!",
             _ => "Bilinmeyen hata oluştu"
         };
