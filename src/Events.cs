@@ -69,7 +69,7 @@ public static class Events
                 player.sutBoz();
             }
         }
-        
+        Instance.SutAktif = true;
         return HookResult.Continue;
     }
 
