@@ -13,6 +13,12 @@ public static class Events
     {
         var clientweapon = hook.GetParam<CBasePlayerWeapon>(1);
         var player = clientweapon.OwnerEntity.Value?.As<CCSPlayerController>();
+        if (Instance.sutList.Contains(player))
+        {
+            hook.SetReturn(false);
+            return HookResult.Stop;
+        }
+
         return HookResult.Continue;
     }
 
@@ -26,6 +32,12 @@ public static class Events
         }
 
         var player = info.Attacker.Value.As<CCSPlayerController>();
+
+        if (Instance.sutList.Contains(player))
+        {
+            hook.SetReturn(false);
+            return HookResult.Stop;
+        }
 
         return HookResult.Continue;
     }
