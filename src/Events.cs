@@ -4,16 +4,16 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Memory;
 using CounterStrikeSharp.API.Modules.Memory.DynamicFunctions;
 using CounterStrikeSharp.API.Modules.Utils;
-using static Helpers;
-using static Sutol.Main;
 
-public static class Events
+namespace Sutol;
+
+public partial class Main
 {
-    public static HookResult OnWeaponCanUse(DynamicHook hook)
+    public HookResult OnWeaponCanUse(DynamicHook hook)
     {
         var clientweapon = hook.GetParam<CBasePlayerWeapon>(1);
         var player = clientweapon.OwnerEntity.Value?.As<CCSPlayerController>();
-        if (Instance.sutList.Contains(player))
+        if (sutList.Contains(player))
         {
             hook.SetReturn(false);
             return HookResult.Stop;
@@ -22,7 +22,7 @@ public static class Events
         return HookResult.Continue;
     }
 
-    public static HookResult TakeDamageOld(DynamicHook hook)
+    public HookResult TakeDamageOld(DynamicHook hook)
     {
         var info = hook.GetParam<CTakeDamageInfo>(1);
 
@@ -33,7 +33,7 @@ public static class Events
 
         var player = info.Attacker.Value.As<CCSPlayerController>();
 
-        if (Instance.sutList.Contains(player))
+        if (sutList.Contains(player))
         {
             hook.SetReturn(false);
             return HookResult.Stop;
@@ -48,20 +48,22 @@ public static class Events
         player.sutBoz();
         return HookResult.Continue;
     }
-    
+
     public static HookResult OnPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         var player = @event.Userid;
         if (player.sutBoz())
         {
-            Server.PrintToChatAll($"{Prefix} {ChatColors.Red}{player?.PlayerName} {ChatColors.White}Adlı oyuncu öldüğü için sütlükten atılmıştır!!");
+            Server.PrintToChatAll(
+                $"{Prefix} {ChatColors.Red}{player?.PlayerName} {ChatColors.White}Adlı oyuncu öldüğü için sütlükten atılmıştır!!");
         }
+
         return HookResult.Continue;
     }
-    
-    public static HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
+
+    public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        var sutPlayers = Instance.sutList;
+        var sutPlayers = sutList;
         if (sutPlayers.Count > 0)
         {
             foreach (var player in sutPlayers)
@@ -69,44 +71,47 @@ public static class Events
                 player.sutBoz();
             }
         }
-        Instance.SutAktif = true;
+
+        SutAktif = true;
         return HookResult.Continue;
     }
 
-    
-    public static void PrecacheMonitfests(ResourceManifest manifest)
+
+    public void PrecacheMonitfests(ResourceManifest manifest)
     {
-        if (Instance.Config.SutModeli != null)
+        if (Config.SutModeli != null)
         {
-            manifest.AddResource(Instance.Config.SutModeli);
+            manifest.AddResource(Config.SutModeli);
         }
     }
 
-    public static void OnTick()
+    public void OnTick()
     {
-        if (Instance.sutList.Count == 0 || !Instance.Config.SutGokkusagi)
+        if (sutList.Count == 0 || !Config.SutGokkusagi)
             return;
 
-        foreach (var player in Instance.sutList)
+        foreach (var player in sutList)
         {
             if (!player.IsValid()) continue;
-            
-            if (!Instance.PreviousColors.ContainsKey(player))
+
+            if (!PreviousColors.ContainsKey(player))
             {
-                Instance.PreviousColors[player] = Schema.GetSchemaValue<Color>(player.PlayerPawn.Value.Handle, "CBaseModelEntity", "m_clrRender");
+                PreviousColors[player] = Schema.GetSchemaValue<Color>(player.PlayerPawn.Value.Handle,
+                    "CBaseModelEntity", "m_clrRender");
             }
-            
-            Color newColor = GetNextRainbowColor(player);
+
+            Color newColor = Helpers.GetNextRainbowColor(player);
             player.SetColour(newColor);
         }
     }
-    
-    public static HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
+
+    public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
-        Server.PrintToChatAll($"{Prefix} {ChatColors.White}Süt olma süresi {Instance.Config.SutSuresi} saniye sonra sona erecektir.");
-        Instance.AddTimer(Instance.Config.SutSuresi, () =>
+        Server.PrintToChatAll(
+            $"{Prefix} {ChatColors.White}Süt olma süresi {Config.SutSuresi} saniye sonra sona erecektir.");
+        AddTimer(Config.SutSuresi, () =>
         {
-            Instance.SutAktif = false;
+            SutAktif = false;
             Server.PrintToChatAll($"{Prefix} {ChatColors.White}Süt alımı kapatılmıştır.");
         });
         return HookResult.Continue;
