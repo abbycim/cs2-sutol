@@ -6,7 +6,6 @@ namespace Sutol;
 
 public partial class Main
 {
-    
     private enum SutCondition
     {
         Valid,
