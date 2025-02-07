@@ -15,14 +15,19 @@ public partial class Main : BasePlugin, IPluginConfig<Config>
     public static Main Instance { get; set; }
 
     public static string Prefix = $" {ChatColors.Gold}[{ChatColors.Blue}ABBY{ChatColors.Gold}] {ChatColors.White}";
-    public Config Config { get; set; }
-    public List<CCSPlayerController>? sutList { get; set; }
+    public Config Config { get; set; } = new Config();
+    public List<CCSPlayerController>? sutList { get; set; } = new List<CCSPlayerController>();
     public bool SutAktif = false;
-    public Dictionary<CCSPlayerController, Color> PreviousColors { get; set; }
-    public Dictionary<CCSPlayerController, string>? playerOldModels { get; set; }
+
+    public Dictionary<CCSPlayerController, Color> PreviousColors { get; set; } =
+        new Dictionary<CCSPlayerController, Color>();
+
+    public Dictionary<CCSPlayerController, string>? playerOldModels { get; set; } =
+        new Dictionary<CCSPlayerController, string>();
 
     public override void Load(bool hotReload)
     {
+        Instance = this;
         RegisterListener<Listeners.OnServerPrecacheResources>(PrecacheMonitfests);
         VirtualFunctions.CBaseEntity_TakeDamageOldFunc.Hook(TakeDamageOld, HookMode.Pre);
         VirtualFunctions.CCSPlayer_WeaponServices_CanUseFunc.Hook(OnWeaponCanUse, HookMode.Pre);
@@ -45,7 +50,7 @@ public partial class Main : BasePlugin, IPluginConfig<Config>
         RemoveListener<Listeners.OnTick>(OnTick);
         RemoveCommands();
     }
-    
+
     private void AddCommands()
     {
         AddCommand("sutol", "süt olma komutu", sutOl);
